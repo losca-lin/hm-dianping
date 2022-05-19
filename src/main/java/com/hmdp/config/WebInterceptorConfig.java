@@ -11,13 +11,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @date 2022/5/18 21:43
  */
 @Configuration
-public class LoginInterceptorConfig implements WebMvcConfigurer {
+public class WebInterceptorConfig implements WebMvcConfigurer {
     @Autowired
     LoginInterceptor loginInterceptor;
+    @Autowired
+    RadisRefreshInterceptor radisRefreshInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        InterceptorRegistration registration = registry.addInterceptor(loginInterceptor);
+        InterceptorRegistration registration = registry.addInterceptor(loginInterceptor).order(1);
         registration.addPathPatterns("/**").excludePathPatterns("/shop/**",
                 "/voucher/**",
                 "/shop-type/**",
@@ -25,5 +27,7 @@ public class LoginInterceptorConfig implements WebMvcConfigurer {
                 "/blog/hot",
                 "/user/code",
                 "/user/login");
+        InterceptorRegistration interceptorRegistration = registry.addInterceptor(radisRefreshInterceptor).order(0);
+        interceptorRegistration.addPathPatterns("/**");
     }
 }
