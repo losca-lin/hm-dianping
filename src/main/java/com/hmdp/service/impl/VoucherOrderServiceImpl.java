@@ -9,8 +9,9 @@ import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.hmdp.service.IVoucherService;
 import com.hmdp.utils.RedisIDWorker;
-import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,8 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     private RedisIDWorker redisIDWorker;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public Result seckillVoucher(Long voucherId) {
@@ -64,9 +66,12 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         //一人一单
         Long userId = UserHolder.getUser().getId();
         //创建锁对象
-        SimpleRedisLock redisLock = new SimpleRedisLock("order", stringRedisTemplate);
+        //SimpleRedisLock redisLock = new SimpleRedisLock("order", stringRedisTemplate);
         //尝试获取锁
-        boolean isLock = redisLock.tryLock(1200);
+        //boolean isLock = redisLock.tryLock(1200);
+        RLock redisLock = redissonClient.getLock("lock:order:" + userId);
+        //默认 不等待 超过30秒自动释放
+        boolean isLock = redisLock.tryLock();
         //获取锁失败
         if (!isLock) {
             return Result.fail("不允许重复下单");
@@ -95,7 +100,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             //返回订单号
             return Result.ok(orderId);
         } finally {
-            redisLock.unLock();
+            redisLock.unlock();
         }
 
     }
