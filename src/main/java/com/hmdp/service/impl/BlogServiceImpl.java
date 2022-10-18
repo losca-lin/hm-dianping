@@ -126,6 +126,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         List<UserDTO> userDTOList = users.stream().map(user -> BeanUtil.copyProperties(user, UserDTO.class))
                 .collect(Collectors.toList());
         return Result.ok(userDTOList);
+
     }
 
     private void queryBlogUser(Blog blog) {
