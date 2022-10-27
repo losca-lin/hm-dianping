@@ -72,7 +72,7 @@ public class HmDianPingApplicationTests {
             for (Shop shop : value) {
                 //stringRedisTemplate.opsForGeo().add(key,)
                 locations.add(new RedisGeoCommands.GeoLocation<>(shop.getId().toString()
-                        , new Point(shop.getX(), shop.getY())));
+                         , new Point(shop.getX(), shop.getY())));
 
             }
 
