@@ -95,4 +95,15 @@ public class UserController {
         // 返回
         return Result.ok(userDTO);
     }
+
+    @PostMapping("/sign")
+    public Result sign(){
+        return userService.sign();
+    }
+
+    //统计连续签到的天数
+    @PostMapping("/sign/count")
+    public Result signCount(){
+        return userService.signCount();
+    }
 }
